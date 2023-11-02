@@ -1,0 +1,13 @@
+{
+    "module": "MiddleTableCollumn",
+    "name": "Middle Table Collumn",
+    "description": "Adding columns to middle tables in many-to-many relationships.",
+    "author": "manhtq",
+    "bundled": true,
+    "acceptableVersions": [
+        ">=7.3.0"
+    ],
+    "php": [
+        ">=7.2"
+    ]
+}
