@@ -1,0 +1,25 @@
+{
+    "fields": {
+        "vendors": {
+            "type": "linkMultiple",
+            "layoutDetailDisabled": true,
+            "layoutMassUpdateDisabled": true,
+            "layoutListDisabled": true,
+            "noLoad": true,
+            "importDisabled": true,
+            "exportDisabled": true,
+            "customizationDisabled": false,
+            "isCustom": true
+        }
+    },
+    "links": {
+        "vendors": {
+            "type": "hasMany",
+            "relationName": "vendorContact",
+            "foreign": "contacts",
+            "entity": "Vendor",
+            "audited": false,
+            "isCustom": true
+        }
+    }
+}

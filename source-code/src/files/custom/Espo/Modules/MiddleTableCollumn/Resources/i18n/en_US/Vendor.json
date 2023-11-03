@@ -1,0 +1,11 @@
+{
+    "fields": {
+        "contacts": "Contacts"
+    },
+    "links": {
+        "contacts": "Contacts"
+    },
+    "labels": {
+        "Create Vendor": "Create Vendor"
+    }
+}
