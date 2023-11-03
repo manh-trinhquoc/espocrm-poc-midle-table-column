@@ -172,3 +172,129 @@ The new field, vendorRole, is not storable, which means it is indirectly populat
     }
 }​
 ```
+
+
+- Stopping Point
+
+If you need role to be a free - from text field, you can stop here.
+
+​​​​​​If you need to create a list of options for the role field continue with this tutorial.​
+
+The role field is now visible, editable, and functional in the Vendor detail view as a free - from textbox.
+
+Users can enter any value in the role field and save the record, which will insert the value into the middle table.
+
+- Remember to set the other files as necessary:
+
+    Layouts - Detail, List, Search, and other views
+
+Languages and labels
+
+It is possible to create a bottom panel that shows the value of the role field.You would need to use the vendorRole field for the view of the contact record.
+
+### Part 3: Change the role field to be an enum instead of a varchar to give the user a list of options
+
+Changing role from varchar to enum allows you to present the user with a list of options. You can accomplish this in the following ways:
+
+Store a list of generic options that every Contact to Vendor relationship will have to use for the value of role
+
+The list of options could be Pizza, Cheese, and Paper.
+
+Every Contact that relates to a Vendor will have to choose between Pizza, Cheese, and Paper as the value of role.
+
+Store a list of custom options in each Vendor record, which allows the user to set a value for role that is stored specifically in the related Vendor record.
+
+The list of options is stored in the Vendor record. Vendor A could store Desk, Chair, and Table as the options while Vendor B could store Grass, Tree, and Flower as the options.
+
+Contacts related to Vendor A would be able to choose from Desk, Chair, and Table as the value of role. 
+Contacts related to Vendor B would be able to choose from Grass, Tree, and Flower as the value of role.
+This method is what you see when you relate a User to a Team.
+
+I will update this tutorial in the future to explain the steps involved with each process. The newer view called link-multiple-with-columns implements enums in a different way than the older view called link-multiple-with-role. I do not yet know how to use the newer view to accomplish both methods. For now, you can see an example of each method by searching for the aforementioned views in client/src/.​
+
+### Update and find in backend
+
+- To update the value of role using the ORM, there are multiple methods.
+
+1. Method 1 - relate()
+
+```php
+$vendor = $this->em->getRDBRepository(Vendor::ENTITY_TYPE)->where(...)->findOne();
+$contact = $this->em->getRDBRepository(Contact::ENTITY_TYPE)->where(...)->findOne();
+
+$this->em->getRDBRepository(Vendor::ENTITY_TYPE)->getRelation($vendor, 'contacts')->relate($contact, array ('role' => "New Role Here"));​
+
+```
+
+2. Method 2 - queryBuilder()
+
+```php
+$vendor = $this->em->getRDBRepository(Vendor::ENTITY_TYPE)->where(...)->findOne();
+$contact = $this->em->getRDBRepository(Contact::ENTITY_TYPE)->where(...)->findOne();​
+
+$updateQuery = $this->em->getQueryBuilder()->update()->in('ContactVendor')
+->set(array('role' => "New Role Here"))
+->where(array(
+  'contactId' => $contact->getId(),
+  'vendorId' => $vendor->getId(),
+))
+->build();
+
+$this->em->getQueryExecutor()->execute($updateQuery);​ 
+
+```
+
+- To find records based on the value of role using the ORM, there are multiple methods.​
+
+For example, this is a filter in ` custom/Espo/Modules/MyModule/Classes/Select/Vendor/BoolFilters/OnlyOwners.php ` that finds Vendors with Contacts who have a role of Owner.
+
+```php
+namespace Espo\Modules\MyModule\Classes\Select\Vendor\BoolFilters;
+
+use Espo\Core\Select\Bool\Filter;
+
+use Espo\ORM\Query\{
+  SelectBuilder,
+  Part\Where\OrGroupBuilder,
+  Part\WhereClause,
+};
+
+class OnlyOwners implements Filter
+{
+  public function __construct() {
+  }
+
+  public function apply(SelectBuilder $queryBuilder, OrGroupBuilder $orGroupBuilder): void
+  {
+    $queryBuilder
+      ->leftJoin('contactVendor', 'cv', ['cv.vendorId:' => 'vendor.id'])
+      ->leftJoin('contact', 'c', ['cv.contactId:' => 'c.id']);
+
+    $orGroupBuilder->add(
+      WhereClause::fromRaw(array(
+        'cv.role' => "Owner",
+      ))
+    );
+  }
+}​
+```
+
+Here is a query builder statement on its own:
+
+```php
+
+$selectQuery = $this->em->getQueryBuilder()
+  ->select(['id'])
+  ->from(Vendor::ENTITY_TYPE)
+  ->leftJoin('contactVendor', 'cv', ['cv.vendorId:' => 'vendor.id', 'cv.deleted' => false, ])
+  ->leftJoin('contact', 'c', ['cv.contactId:' => 'c.id', 'c.deleted' => false, ])
+  ->where(['cv.role' => "Owner"])
+  ->build();
+
+$pdoStatement = $this->em->getQueryExecutor()->execute($selectQuery);
+$rows = $pdoStatement->fetchAll(\PDO::FETCH_ASSOC);​
+
+```
+
+### Part 4: Add custom list views in related entities that show the role
+- read in the tuto link

@@ -10,6 +10,11 @@
             "exportDisabled": true,
             "customizationDisabled": false,
             "isCustom": true
+        },
+        "vendorRole": {
+            "type": "varchar",
+            "notStorable": true,
+            "utility": true
         }
     },
     "links": {
@@ -19,7 +24,10 @@
             "foreign": "contacts",
             "entity": "Vendor",
             "audited": false,
-            "isCustom": true
+            "isCustom": true,
+            "columnAttributeMap": {
+                "role": "vendorRole"
+            }
         }
     }
 }

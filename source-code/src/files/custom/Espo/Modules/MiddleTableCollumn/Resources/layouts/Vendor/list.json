@@ -1,0 +1,15 @@
+[
+    {
+        "name": "name",
+        "link": true,
+        "label": "Name"
+    },
+    {
+        "name": "contacts",
+        "notSortable": true,
+        "label": "Contacts"
+    },
+    {
+        "name": "description"
+    }
+]
